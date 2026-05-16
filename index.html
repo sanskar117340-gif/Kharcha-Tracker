@@ -785,6 +785,7 @@ const auth = firebase.auth();
 const db = firebase.firestore();
 const analytics = firebase.analytics();
 
+// Enable offline persistence — Firestore caches data locally automatically
 db.enablePersistence({ synchronizeTabs: true })
   .catch(err => {
     if (err.code === 'failed-precondition') {
@@ -794,10 +795,12 @@ db.enablePersistence({ synchronizeTabs: true })
     }
   });
 
+// Auto-sync localStorage to Firestore when internet comes back
 window.addEventListener('online', () => {
   showNotif('🌐 Back online! Syncing data...', 'good');
   const user = auth.currentUser;
   if (user) {
+    // Check if there's pending localStorage data to sync
     const pendingExp   = localStorage.getItem('ac3_exp');
     const pendingLoans = localStorage.getItem('ac3_loans');
     if (pendingExp || pendingLoans) {
@@ -828,6 +831,7 @@ async function saveToFirestore() {
   const user = auth.currentUser;
   if (!user) return;
   try {
+    // Save profile/meta in user doc
     await db.collection('users').doc(user.uid).set({
       userName,
       userAvatar,
@@ -835,6 +839,7 @@ async function saveToFirestore() {
       joinDate,
       updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     });
+    // Save expenses as subcollection - delete all then rewrite
     const expRef = db.collection('users').doc(user.uid).collection('expenses');
     const expSnap = await expRef.get();
     const batch1 = db.batch();
@@ -846,6 +851,7 @@ async function saveToFirestore() {
       batch2.set(ref, ex);
     });
     await batch2.commit();
+    // Save loans as subcollection
     const loanRef = db.collection('users').doc(user.uid).collection('loans');
     const loanSnap = await loanRef.get();
     const batch3 = db.batch();
@@ -865,6 +871,8 @@ async function loadFromFirestore() {
   if (!user) return false;
   try {
     const snap = await db.collection('users').doc(user.uid).get();
+
+    // Check if there's pending unsynced localStorage data
     const pendingExp = localStorage.getItem('ac3_exp');
 
     if (snap.exists) {
@@ -874,24 +882,29 @@ async function loadFromFirestore() {
       theme      = data.theme      || 'light';
       joinDate   = data.joinDate   || '';
 
+      // If there's pending localStorage data, merge it with Firestore
       if (pendingExp) {
         try {
           const localExpenses = JSON.parse(pendingExp);
           const localLoans    = JSON.parse(localStorage.getItem('ac3_loans') || '[]');
+          // Load Firestore data
           const expSnap  = await db.collection('users').doc(user.uid).collection('expenses').get();
           const fbExpenses = expSnap.docs.map(d => d.data());
           const loanSnap = await db.collection('users').doc(user.uid).collection('loans').get();
           const fbLoans  = loanSnap.docs.map(d => d.data());
+          // Merge: combine both, deduplicate by id
           const allExpenses = [...fbExpenses];
           localExpenses.forEach(le => { if (!allExpenses.find(e => e.id === le.id)) allExpenses.push(le); });
           const allLoans = [...fbLoans];
           localLoans.forEach(ll => { if (!allLoans.find(l => l.id === ll.id)) allLoans.push(ll); });
           expenses = allExpenses;
           loans    = allLoans;
+          // Push merged data back to Firestore
           await saveToFirestore();
           showNotif('✅ Offline data synced!', 'good');
         } catch(e) { console.error('Merge error:', e); }
       } else {
+        // No pending data — load from Firestore normally
         const expSnap  = await db.collection('users').doc(user.uid).collection('expenses').get();
         expenses = expSnap.docs.map(d => d.data());
         expenses.sort((a,b) => (b.date||'').localeCompare(a.date||''));
@@ -899,6 +912,7 @@ async function loadFromFirestore() {
         loans = loanSnap.docs.map(d => d.data());
       }
 
+      // Wipe localStorage after successful load
       localStorage.removeItem('ac3_exp');
       localStorage.removeItem('ac3_loans');
       localStorage.removeItem('ac3_user');
@@ -907,7 +921,9 @@ async function loadFromFirestore() {
       return true;
     }
 
+    // Brand new user
     if (pendingExp) {
+      // They added data while offline before ever signing in
       try {
         expenses = JSON.parse(pendingExp);
         loans    = JSON.parse(localStorage.getItem('ac3_loans') || '[]');
@@ -925,6 +941,7 @@ async function loadFromFirestore() {
     return false;
   } catch(e) {
     console.error('Firestore load error:', e);
+    // Offline — load from localStorage cache
     try {
       expenses = JSON.parse(localStorage.getItem('ac3_exp')   || '[]');
       loans    = JSON.parse(localStorage.getItem('ac3_loans') || '[]');
@@ -962,12 +979,14 @@ async function doGoogleSignIn() {
   try {
     const result = await auth.signInWithPopup(provider);
     const user = result.user;
+    // Use Google display name and photo as defaults
     if (!localStorage.getItem('ac3_user_' + user.email)) {
       userName = user.displayName || user.email.split('@')[0];
       userAvatar = loginSelectedAvatar || AVATARS[0];
       localStorage.setItem('ac3_user_' + user.email, userName);
       localStorage.setItem('ac3_avatar_' + user.email, userAvatar);
     }
+    // onAuthStateChanged handles the rest
   } catch (err) {
     if (err.code !== 'auth/popup-closed-by-user') {
       showAuthError('siError', 'Google sign-in failed. Please try again.');
@@ -984,6 +1003,7 @@ async function doSignIn() {
   btn.textContent = 'Signing in…'; btn.disabled = true;
   try {
     await auth.signInWithEmailAndPassword(email, password);
+    // onAuthStateChanged will handle the rest
   } catch (err) {
     btn.textContent = 'Sign In →'; btn.disabled = false;
     showAuthError('siError', 'Email or password is incorrect');
@@ -1002,9 +1022,11 @@ async function doSignUp() {
   btn.textContent = 'Creating account…'; btn.disabled = true;
   try {
     await auth.createUserWithEmailAndPassword(email, password);
+    // Store name/avatar in localStorage keyed by email so it persists per user
     const av = loginSelectedAvatar || AVATARS[0];
     localStorage.setItem('ac3_user_' + email, name);
     localStorage.setItem('ac3_avatar_' + email, av);
+    // onAuthStateChanged will handle the rest
   } catch (err) {
     btn.textContent = 'Create Account →'; btn.disabled = false;
     if (err.code === 'auth/email-already-in-use') {
@@ -1018,13 +1040,16 @@ async function doSignUp() {
 async function doSignOut() {
   if (!confirm('Sign out of KharchaTracker?')) return;
   clearInterval(clockInterval);
+  // Clear local cache so next user gets their own data
   localStorage.removeItem('ac3_exp');
   localStorage.removeItem('ac3_loans');
   localStorage.removeItem('ac3_user');
   localStorage.removeItem('ac3_avatar');
   localStorage.removeItem('ac3_joined');
+  // Reset in-memory state
   expenses = []; loans = []; userName = ''; userAvatar = ''; joinDate = '';
   await auth.signOut();
+  // UI reset handled by onAuthStateChanged
 }
 
 /* ══ AUTH STATE OBSERVER ══ */
@@ -1033,8 +1058,10 @@ auth.onAuthStateChanged(async user => {
   if (ls && ls.style.display !== 'none' && ls.style.opacity !== '0') return;
 
   if (user) {
+    // Load from Firestore first, fall back to localStorage
     const loaded = await loadFromFirestore();
     if (!loaded) {
+      // First time user — try localStorage cache
       const email = user.email;
       const savedName   = localStorage.getItem('ac3_user_' + email);
       const savedAvatar = localStorage.getItem('ac3_avatar_' + email);
@@ -1055,7 +1082,6 @@ auth.onAuthStateChanged(async user => {
     if (su) { su.textContent = 'Create Account →'; su.disabled = false; }
   }
 });
-
 /* ══ CONSTANTS ══ */
 const AVATARS=['🧑‍💻','👩‍🎓','🧑‍🎓','👨‍💼','👩‍💼','🦸','🦹','🧙','🧝','🧛','🤠','👻','🐱','🐶','🦊','🐼','🐸','🦄','🐺','🦋'];
 const CAT={
@@ -1075,7 +1101,7 @@ const MONTH_NAMES=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','
 let expenses=[],loans=[],userName='',userAvatar='🧑‍💻',theme='light',joinDate='';
 let dayChartInst=null,notifTimer=null,clockInterval=null;
 let editingId=null;
-let viewingMonth=monthKey();
+let viewingMonth=monthKey(); // currently viewed month in list
 
 /* ══ STORAGE ══ */
 function load(){
@@ -1089,6 +1115,7 @@ function load(){
   }catch(e){expenses=[];loans=[];}
 }
 function save(){
+  // Step 1 — instantly write to localStorage (speed cache)
   try{
     localStorage.setItem('ac3_exp',   JSON.stringify(expenses));
     localStorage.setItem('ac3_loans', JSON.stringify(loans));
@@ -1098,6 +1125,7 @@ function save(){
     localStorage.setItem('ac3_joined',joinDate);
   }catch(e){}
 
+  // Step 2 — save to Firestore, then wipe localStorage cache on success
   saveToFirestore().then(() => {
     localStorage.removeItem('ac3_exp');
     localStorage.removeItem('ac3_loans');
@@ -1105,6 +1133,7 @@ function save(){
     localStorage.removeItem('ac3_avatar');
     localStorage.removeItem('ac3_joined');
   }).catch(e => {
+    // Firestore failed — keep localStorage as fallback, don't wipe
     console.warn('Firestore save failed, keeping localStorage as fallback:', e);
   });
 }
@@ -1197,9 +1226,11 @@ function launchApp(){
   updateClock();
   if(clockInterval)clearInterval(clockInterval);
   clockInterval=setInterval(updateClock,1000);
+  // Bulletproof visibility fix
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible'){
       updateClock();
+      // Reset date to today if day changed
       const td=document.getElementById('inpDate');
       const fd=document.getElementById('fDate');
       if(td) td.value=todayStr();
@@ -1212,6 +1243,7 @@ function launchApp(){
   buildMonthTabs();
   refresh();
   checkAlerts();
+  // Phase 2 — AI init
   checkModeOnLogin();
   applyModeUI();
   renderBudget();
@@ -1269,9 +1301,13 @@ function checkAlerts(){
 
 /* ══ MONTH TABS ══ */
 function buildMonthTabs(){
+  const months=[];
+  // Collect all months from expenses
   const seen=new Set();
   expenses.forEach(e=>{if(e.date)seen.add(e.date.slice(0,7));});
+  // Always include current month
   seen.add(monthKey());
+  // Sort descending
   const sorted=[...seen].sort((a,b)=>b.localeCompare(a));
   const tabs=document.getElementById('monthTabs');
   tabs.innerHTML=sorted.map(mk=>{
@@ -1300,9 +1336,11 @@ function refresh(){
   document.getElementById('sumTodaySub').textContent=te.length+' transaction'+(te.length!==1?'s':'');
   document.getElementById('sumMonth').textContent=fmt(mt);
   document.getElementById('sumMonthSub').textContent=me.length+' entries total';
+  // Friends badge
   const al=loans.filter(l=>!l.settled).length;
   const nb=document.getElementById('friendsBadge');
   nb.textContent=al;nb.style.display=al>0?'flex':'none';
+  // Reminder pill
   const rp=document.getElementById('reminder');
   const activeL=loans.filter(l=>!l.settled);
   if(activeL.length){
@@ -1317,7 +1355,7 @@ function refresh(){
   updateListTitle();
 }
 
-/* ══ EXPENSE LIST ══ */
+/* ══ EXPENSE LIST (with search + filter) ══ */
 function getFilteredExpenses(){
   const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
   const cat=document.getElementById('filterCat')?.value||'';
@@ -1378,6 +1416,7 @@ function swipeEnd(e,id){
   const moved=swipeData[id].moved;
   const el=document.getElementById('expItem_'+id);
   if(moved<-70){
+    // Delete
     if(el){el.style.transform='translateX(-100%)';el.style.transition='transform .25s ease';}
     setTimeout(()=>{expenses=expenses.filter(ex=>ex.id!==id);save();refresh();},250);
   } else {
@@ -1423,6 +1462,7 @@ function addExpense(){
   const cat =document.getElementById('inpCat').value;
   if(!desc||!amt||amt<=0||!date){alert('Please fill description, amount, and date.');return;}
   expenses.unshift({id:Date.now(),desc,amt,date,cat});
+  // If we're viewing a different month, switch back to current
   viewingMonth=monthKey();
   save();refresh();checkAlerts();
   document.getElementById('inpDesc').value='';
@@ -1489,6 +1529,7 @@ function renderCharts(){
       return `<div class="cat-row"><div class="cat-info"><span class="cat-name">${c.emoji} ${c.label}</span><span class="cat-amt">${fmt(v)} <span style="color:var(--muted)">(${pct}%)</span></span></div><div class="cat-track"><div class="cat-fill" style="width:${pct}%;background:${c.color}"></div></div></div>`;
     }).join('');
   }
+  // Month compare (this vs last)
   const thisM=monthExp(monthKey());
   const lastMK=monthKey(-1);
   const lastM=monthExp(lastMK);
@@ -1500,6 +1541,7 @@ function renderCharts(){
     <div class="mc-item"><div class="mc-label">This Month</div><div class="mc-val">${fmt(thisMT)}</div></div>
     <div class="mc-item"><div class="mc-label">${MONTH_NAMES[parseInt(lm)-1]} ${ly}</div><div class="mc-val" style="color:${diff>0?'var(--red)':diff<0?'var(--em)':'var(--acc)'}">${diff>0?'▲ '+fmt(diff):diff<0?'▼ '+fmt(-diff):'Same'}</div></div>`;
 
+  // Daily bar chart
   const now=new Date();
   const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
   const dt=Array(dim).fill(0);
@@ -1694,7 +1736,8 @@ function generatePDF(){
 /* ══════════════════════════════════════
    PHASE 2 — AI FEATURES
 ══════════════════════════════════════ */
-let userMode    = localStorage.getItem('kh_mode')    || '';
+// API key is stored securely in Netlify environment variables — never put it here!
+let userMode    = localStorage.getItem('kh_mode')    || '';   // 'student' | 'adult'
 let aiLang      = localStorage.getItem('kh_lang')    || 'english';
 let monthBudget = parseFloat(localStorage.getItem('kh_budget') || '0');
 let chatHistory = [];
@@ -1753,7 +1796,7 @@ function renderBudget() {
   const el = document.getElementById('budgetDisplay');
   if (!el) return;
   if (!monthBudget) { el.innerHTML = '<div style="font-size:12px;color:var(--muted)">No budget set. Tap "Set Budget" to get started.</div>'; return; }
-  const spent = monthExp().reduce((s,e)=>s+e.amt,0);
+  const spent = monthExp().reduce((s,e)=>s+e.amount,0);
   const pct   = Math.min((spent/monthBudget)*100, 100);
   const left  = monthBudget - spent;
   const color = pct > 90 ? 'var(--red)' : pct > 70 ? 'var(--amb)' : 'var(--em)';
@@ -1769,6 +1812,7 @@ function renderBudget() {
         ${left>=0?'Rs '+Math.round(left).toLocaleString()+' left':'Rs '+Math.round(Math.abs(left)).toLocaleString()+' over!'}
       </div>
     </div>`;
+  // Warn if over 80%
   if (pct >= 80 && pct < 100) checkBudgetWarning(pct, left);
 }
 function checkBudgetWarning(pct, left) {
@@ -1793,6 +1837,7 @@ async function callClaude(prompt, imageBase64=null) {
 
   const messages = [...chatHistory.slice(-10), { role:'user', content:userContent }];
 
+  // Use Netlify proxy function — hides API key from browser
   const res = await fetch('https://aries-proxy.sageplays100.workers.dev', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1812,17 +1857,15 @@ async function callClaude(prompt, imageBase64=null) {
   return data.content[0].text;
 }
 
-/* ── FIXED: getSpendingContext ── */
 function getSpendingContext() {
   const mk = monthKey();
   const mExp = monthExp(mk);
-  const total = mExp.reduce((s,e) => s + e.amt, 0);
+  const total = mExp.reduce((s,e)=>s+e.amount,0);
   const bycat = {};
-  mExp.forEach(e => { bycat[e.cat] = (bycat[e.cat] || 0) + e.amt; });
-  const topCat = Object.entries(bycat).sort((a,b) => b[1]-a[1]).slice(0,3)
-    .map(([c,a]) => `${c}: Rs${Math.round(a)}`).join(', ');
-  const today = todayExp().reduce((s,e) => s + e.amt, 0);
-  return `User: ${userName}, Mode: ${userMode}, Month: ${mk}, Total spent this month: Rs${Math.round(total)}, Today: Rs${Math.round(today)}, Top categories: ${topCat||'none'}, Budget: ${monthBudget ? 'Rs'+monthBudget : 'not set'}, Total expenses: ${mExp.length}`;
+  mExp.forEach(e=>{ bycat[e.category]=(bycat[e.category]||0)+e.amount; });
+  const topCat = Object.entries(bycat).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([c,a])=>`${c}: Rs${Math.round(a)}`).join(', ');
+  const today = todayExp().reduce((s,e)=>s+e.amount,0);
+  return `User: ${userName}, Mode: ${userMode}, Month: ${mk}, Total spent this month: Rs${Math.round(total)}, Today: Rs${Math.round(today)}, Top categories: ${topCat||'none'}, Budget: ${monthBudget?'Rs'+monthBudget:'not set'}, Total expenses: ${mExp.length}`;
 }
 
 /* ── Aries Chatbot ── */
@@ -1876,9 +1919,9 @@ async function generateMonthlyReport() {
   try {
     const mk   = monthKey();
     const mExp = monthExp(mk);
-    const total = mExp.reduce((s,e)=>s+e.amt,0);
+    const total = mExp.reduce((s,e)=>s+e.amount,0);
     const bycat = {};
-    mExp.forEach(e=>{ bycat[e.cat]=(bycat[e.cat]||0)+e.amt; });
+    mExp.forEach(e=>{ bycat[e.category]=(bycat[e.category]||0)+e.amount; });
     const catBreakdown = Object.entries(bycat).sort((a,b)=>b[1]-a[1]).map(([c,a])=>`${c}: Rs${Math.round(a)} (${Math.round((a/total)*100)}%)`).join('\n');
     const dailyAvg = total / new Date().getDate();
     const daysLeft = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate() - new Date().getDate();
@@ -1929,7 +1972,7 @@ async function getSpendingPrediction() {
   try {
     const mk    = monthKey();
     const mExp  = monthExp(mk);
-    const total = mExp.reduce((s,e)=>s+e.amt,0);
+    const total = mExp.reduce((s,e)=>s+e.amount,0);
     const day   = new Date().getDate();
     const days  = new Date(new Date().getFullYear(), new Date().getMonth()+1, 0).getDate();
     const predicted = (total / day) * days;
@@ -1978,7 +2021,7 @@ function addReceiptExpense() {
   const amt  = parseFloat(document.getElementById('rAmt').value);
   const cat  = document.getElementById('rCat').value;
   if (!desc || !amt) { showNotif('Please fill in all fields','warn'); return; }
-  expenses.unshift({ id: Date.now(), desc, amt, cat, date: todayStr() });
+  expenses.unshift({ id: Date.now(), desc, amount: amt, category: cat, date: todayStr() });
   save(); refresh(); checkAlerts();
   closeModal('receiptModal');
   showNotif('✅ Receipt expense added!','good');
