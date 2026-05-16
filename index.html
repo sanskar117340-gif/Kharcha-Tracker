@@ -1834,7 +1834,7 @@ async function callClaude(prompt, imageBase64=null) {
   const messages = [...chatHistory.slice(-10), { role:'user', content:userContent }];
 
   // Use Netlify proxy function — hides API key from browser
-  const res = await fetch('/.netlify/functions/claude-proxy', {
+  const res = await fetch('https://aries-proxy.sageplays100.workers.dev', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
