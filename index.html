@@ -279,9 +279,9 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .chat-lang{margin-left:auto;background:var(--acl);color:var(--acc);border:none;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer}
 .chat-msgs{height:280px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
 .msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5;animation:slideUp .2s ease}
-.msg-ai{background:var(--acl);color:var(--ink2);border-bottom-left-radius:4px;align-self:flex-start}
+.msg-ai{background:var(--acl);color:var(--ink);border-bottom-left-radius:4px;align-self:flex-start}
 .msg-user{background:var(--acc);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
-.msg-typing{background:var(--acl);color:var(--muted);padding:12px 16px;border-radius:14px;border-bottom-left-radius:4px;align-self:flex-start;font-size:13px}
+.msg-typing{background:var(--acl);color:var(--ink);padding:12px 16px;border-radius:14px;border-bottom-left-radius:4px;align-self:flex-start;font-size:13px}
 .chat-input-wrap{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
 .chat-input{flex:1;border:2px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);outline:none}
 .chat-send{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:16px;cursor:pointer}
@@ -563,6 +563,18 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <div class="field"><input type="text" id="profNameInput" placeholder="Your name" maxlength="30"/></div>
       <button class="btn btn-p" onclick="saveName()">Save Name</button>
     </div>
+
+    <!-- Avatar change -->
+    <div class="card card-pad" style="margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px">🖼️ Profile Photo</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" style="flex:1;margin-top:0" onclick="useGooglePhoto()">Use Google Photo</button>
+        <button class="btn btn-ghost" style="flex:1;margin-top:0" onclick="document.getElementById('galleryInput').click()">Upload Photo</button>
+      </div>
+      <input type="file" id="galleryInput" accept="image/*" style="display:none" onchange="uploadGalleryPhoto(event)"/>
+      <div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">Or tap your avatar above to pick an anime character</div>
+    </div>
+
     <div class="theme-row">
       <div>
         <div class="theme-label"><span id="themeEmoji">🌙</span> Dark Mode</div>
@@ -572,20 +584,35 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
     </div>
     <!-- Export -->
     <div class="export-row">
-      <button class="btn-export btn-export-csv" onclick="exportCSV()">📄 Export CSV</button>
-      <button class="btn-export btn-export-pdf" onclick="generatePDF()">📑 Export PDF</button>
+      <button class="btn-export btn-export-csv" onclick="exportCSV()">Export CSV</button>
+      <button class="btn-export btn-export-pdf" onclick="generatePDF()">Export PDF</button>
     </div>
     <!-- Backup -->
     <div class="card card-pad" style="margin-bottom:14px">
-      <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px">💾 Backup &amp; Restore</div>
+      <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px">Backup &amp; Restore</div>
       <div class="export-row" style="margin-bottom:0">
-        <button class="btn-export" style="background:var(--bluel);color:#1D4ED8" onclick="backupJSON()">⬇ Download Backup</button>
-        <button class="btn-export" style="background:var(--ambl);color:#78350F" onclick="document.getElementById('restoreFile').click()">⬆ Restore Backup</button>
+        <button class="btn-export" style="background:var(--bluel);color:#1D4ED8" onclick="backupJSON()">Download Backup</button>
+        <button class="btn-export" style="background:var(--ambl);color:#78350F" onclick="document.getElementById('restoreFile').click()">Restore Backup</button>
       </div>
       <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(event)"/>
     </div>
+
+    <!-- Sign Out — clean Apple style -->
+    <button onclick="doSignOut()" style="
+      width:100%;padding:14px;border-radius:var(--rsm);
+      border:1.5px solid var(--redl);
+      background:none;
+      color:var(--red);
+      font-size:14px;font-weight:600;
+      font-family:'Sora',sans-serif;
+      cursor:pointer;
+      letter-spacing:.01em;
+      margin-bottom:14px;
+      transition:background .2s;
+    " onmouseover="this.style.background='var(--redl)'" onmouseout="this.style.background='none'">Sign Out</button>
+
     <div class="danger-zone">
-      <h4>⚠️ Danger Zone</h4>
+      <h4>Danger Zone</h4>
       <button class="btn-danger" onclick="clearAllData()">Clear All My Data</button>
     </div>
     <div style="text-align:center;font-size:11px;color:var(--muted);padding-bottom:8px;letter-spacing:.08em">ARYAL CORP · KHARCHA TRACKER</div>
@@ -724,31 +751,19 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 <div class="modal-overlay" id="budgetModal" onclick="closeModalOutside(event,'budgetModal')">
   <div class="modal-sheet">
     <div class="modal-handle"></div>
-    <div class="modal-title">💰 Set Monthly Budget</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div class="modal-title" style="margin-bottom:0">💰 Monthly Budget</div>
+      <button onclick="closeModal('budgetModal')" style="background:var(--border);border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--muted)">✕</button>
+    </div>
     <div class="field"><label>Your monthly budget (Rs)</label><input type="number" id="budgetInput" placeholder="e.g. 15000" inputmode="decimal"/></div>
-    <button class="btn btn-p" onclick="saveBudget()">Save Budget</button>
-  </div>
-</div>
-
-<!-- MODE MODAL -->
-<div class="mode-modal" id="modeModal" style="display:none">
-  <div class="mode-sheet">
-    <div class="mode-title">Who are you? 👋</div>
-    <div class="mode-sub">This helps AI give you better advice</div>
-    <div class="mode-options">
-      <div class="mode-opt" onclick="selectMode('student')">
-        <div class="mode-opt-ico">🎓</div>
-        <div class="mode-opt-title">Student</div>
-        <div class="mode-opt-sub">Pocket money, allowance, college life</div>
-      </div>
-      <div class="mode-opt" onclick="selectMode('adult')">
-        <div class="mode-opt-ico">👔</div>
-        <div class="mode-opt-title">Adult</div>
-        <div class="mode-opt-sub">Salary, bills, family expenses</div>
-      </div>
+    <div style="display:flex;gap:10px;margin-top:4px">
+      <button class="btn btn-ghost" style="flex:1" onclick="closeModal('budgetModal')">Cancel</button>
+      <button class="btn btn-p" style="flex:2" onclick="saveBudget()">Save Budget</button>
     </div>
   </div>
 </div>
+
+<!-- MODE MODAL REMOVED -->
 
 <!-- EDIT EXPENSE MODAL -->
 <div class="modal-overlay" id="editModal" onclick="closeModalOutside(event,'editModal')">
