@@ -1117,6 +1117,11 @@ auth.onAuthStateChanged(async user => {
     }
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appWrap').style.display = 'block';
+    // Auto-use Google photo if no custom avatar set
+    if(user.photoURL && (!userAvatar || userAvatar === 'a1')){
+      userAvatar = user.photoURL;
+      userAvatarIsPhoto = true;
+    }
     launchApp();
   } else {
     document.getElementById('appWrap').style.display = 'none';
@@ -1301,8 +1306,7 @@ function launchApp(){
   refresh();
   checkAlerts();
   // Phase 2 — AI init
-  checkModeOnLogin();
-  applyModeUI();
+  // No mode selection needed anymore
   renderBudget();
   checkMonthlyReportPrompt();
   const als = document.getElementById('aiLangSelect');
@@ -1312,9 +1316,14 @@ function launchApp(){
 }
 
 function updateHeaderAvatar(){
-  document.getElementById('hdrAvatar').innerHTML=getAvatarSVG(userAvatar);
-  document.getElementById('hdrSub').textContent=greetStr();
-  document.getElementById('hdrName').textContent=userName;
+  const el = document.getElementById('hdrAvatar');
+  if(userAvatar && (userAvatar.startsWith('http') || userAvatar.startsWith('data:'))){
+    el.innerHTML = `<img src="${userAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=getAvatarSVG('a1')"/>`;
+  } else {
+    el.innerHTML = getAvatarSVG(userAvatar);
+  }
+  document.getElementById('hdrSub').textContent = greetStr();
+  document.getElementById('hdrName').textContent = userName;
 }
 
 /* ══ THEME ══ */
@@ -1678,7 +1687,12 @@ Format your response as exactly 3-4 insights. Each insight should be on a new li
 
 /* ══ PROFILE ══ */
 function updateProfileDisplay(){
-  document.getElementById('profAvatar').innerHTML=getAvatarSVG(userAvatar);
+  const profEl = document.getElementById('profAvatar');
+  if(userAvatar && (userAvatar.startsWith('http') || userAvatar.startsWith('data:'))){
+    profEl.innerHTML = `<img src="${userAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=getAvatarSVG('a1')"/>`;
+  } else {
+    profEl.innerHTML = getAvatarSVG(userAvatar);
+  }
   document.getElementById('profName').textContent=userName;
   document.getElementById('profNameInput').value=userName;
   if(joinDate){const d=new Date(joinDate);document.getElementById('profJoined').textContent='Tracking since '+MONTH_NAMES[d.getMonth()]+' '+d.getFullYear();}
@@ -1751,72 +1765,212 @@ function generatePDF(){
   const tt=te.reduce((s,e)=>s+e.amt,0);
   const al=loans.filter(l=>!l.settled);
   const lt=al.reduce((s,l)=>s+l.amt,0);
-  function wm(){doc.saveGraphicsState();doc.setGState(new doc.GState({opacity:.055}));doc.setFont('helvetica','bold');doc.setFontSize(48);doc.setTextColor(124,58,237);doc.text('ARYAL CORP',W/2,148,{align:'center',angle:42});doc.restoreGraphicsState();}
+  const days=now.getDate();
+
+  // Watermark
+  function wm(){
+    doc.saveGraphicsState();
+    doc.setGState(new doc.GState({opacity:.04}));
+    doc.setFont('helvetica','bold');doc.setFontSize(52);doc.setTextColor(10,10,14);
+    doc.text('ARYAL CORP',W/2,150,{align:'center',angle:42});
+    doc.restoreGraphicsState();
+  }
   wm();
-  doc.setFillColor(76,29,149);doc.rect(0,0,W,44,'F');
-  doc.setFillColor(124,58,237);doc.rect(0,34,W,10,'F');
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(22);doc.text('KharchaTracker',M,17);
-  doc.setFont('helvetica','normal');doc.setFontSize(10);doc.text('Daily Report · '+userName,M,26);
-  doc.setFontSize(9);doc.text(now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}),M,36);
-  doc.setFillColor(196,181,253);doc.roundedRect(W-M-32,5,32,10,2,2,'F');
-  doc.setTextColor(59,7,100);doc.setFontSize(7);doc.setFont('helvetica','bold');doc.text('ARYAL CORP',W-M-16,11,{align:'center'});
-  y=52;
-  const boxes=[{l:"Today's Spend",v:fmt(tt),c:[124,58,237]},{l:'Month Total',v:fmt(mt),c:[59,130,246]},{l:'Friends Owe Me',v:fmt(lt),c:[236,72,153]}];
-  boxes.forEach((b,i)=>{const x=M+i*60;doc.setFillColor(...b.c);doc.roundedRect(x,y,55,22,3,3,'F');doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','normal');doc.text(b.l,x+27,y+8,{align:'center'});doc.setFontSize(10);doc.setFont('helvetica','bold');doc.text(b.v,x+27,y+17,{align:'center'});});
-  y+=30;
-  function secHead(t){if(y>264){doc.addPage();wm();y=20;}doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(76,29,149);doc.text(t,M,y);y+=4;doc.setDrawColor(196,181,253);doc.setLineWidth(.4);doc.line(M,y,W-M,y);y+=6;}
+
+  // ── HEADER ──
+  // Clean white header with black accents (Aryal Corp style)
+  doc.setFillColor(10,10,14);doc.rect(0,0,W,52,'F');
+
+  // Draw Aryal Corp A logo in PDF header
+  // Two stroke lines forming A + crossbar
+  doc.setDrawColor(255,255,255);doc.setLineWidth(1.8);
+  doc.line(22,14,16,36); // left leg
+  doc.line(22,14,28,36); // right leg
+  doc.line(17.5,28,26.5,28); // crossbar
+  doc.setFillColor(255,255,255);doc.circle(22,14,1,'F'); // apex dot
+
+  // KharchaTracker title
+  doc.setTextColor(255,255,255);
+  doc.setFont('helvetica','bold');doc.setFontSize(18);doc.text('KharchaTracker',36,20);
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(180,180,180);
+  doc.text('by ARYAL CORP  ·  Serve the World',36,27);
+
+  // Date on right
+  doc.setTextColor(200,200,200);doc.setFontSize(8);
+  doc.text(now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}),W-M,20,{align:'right'});
+  doc.text('Report for: '+userName,W-M,27,{align:'right'});
+
+  // Thin accent line
+  doc.setDrawColor(124,58,237);doc.setLineWidth(0.8);doc.line(0,52,W,52);
+  y=62;
+
+  // ── SUMMARY CARDS ──
+  const cards=[
+    {l:"Today's Spend",v:fmt(tt),sub:te.length+' transactions',c:[124,58,237]},
+    {l:'Month Total',  v:fmt(mt),sub:'Rs '+Math.round(mt/Math.max(days,1)).toLocaleString()+'/day avg',c:[10,10,14]},
+    {l:'Friends Owe',  v:fmt(lt),sub:al.length+' pending loans',c:[59,130,246]}
+  ];
+  const cw=56,cg=5,cs=M;
+  cards.forEach((b,i)=>{
+    const x=cs+i*(cw+cg);
+    doc.setFillColor(...b.c);doc.roundedRect(x,y,cw,24,2,2,'F');
+    doc.setTextColor(255,255,255);
+    doc.setFont('helvetica','normal');doc.setFontSize(6.5);
+    doc.text(b.l,x+cw/2,y+7,{align:'center'});
+    doc.setFont('helvetica','bold');doc.setFontSize(11);
+    doc.text(b.v,x+cw/2,y+16,{align:'center'});
+    doc.setFont('helvetica','normal');doc.setFontSize(6);doc.setTextColor(220,220,220);
+    doc.text(b.sub,x+cw/2,y+22,{align:'center'});
+  });
+  y+=34;
+
+  // ── SECTION HELPER ──
+  function secHead(t,color=[10,10,14]){
+    if(y>264){doc.addPage();wm();y=20;}
+    doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(...color);
+    doc.text(t,M,y);y+=4;
+    doc.setDrawColor(220,220,220);doc.setLineWidth(.4);doc.line(M,y,W-M,y);y+=7;
+  }
+
+  // ── CATEGORY BAR CHART ──
+  secHead('Monthly Spending by Category');
+  const bycat={};me.forEach(e=>{bycat[e.cat]=(bycat[e.cat]||0)+e.amt;});
+  const sorted=Object.entries(bycat).sort((a,b)=>b[1]-a[1]);
+  if(!sorted.length){
+    doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(156,163,175);
+    doc.text('No expenses this month.',M,y);y+=8;
+  } else {
+    const maxV=sorted[0][1];
+    const barH=6,barGap=3,barMaxW=W-M*2-40;
+    sorted.forEach(([k,v],i)=>{
+      if(y>270){doc.addPage();wm();y=20;}
+      const c=CAT[k]||CAT.other;
+      const pct=mt>0?Math.round(v/mt*100):0;
+      const bw=Math.round(barMaxW*(v/maxV));
+      const rgb=hexRgb(c.color);
+      // Category label
+      doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(30,30,30);
+      doc.text(c.label,M,y+4.5);
+      // Bar
+      doc.setFillColor(235,235,240);doc.roundedRect(M+36,y,barMaxW,barH,1,1,'F');
+      doc.setFillColor(rgb.r,rgb.g,rgb.b);doc.roundedRect(M+36,y,Math.max(bw,2),barH,1,1,'F');
+      // Amount
+      doc.setFont('helvetica','bold');doc.setFontSize(8);
+      doc.text(fmt(v)+' ('+pct+'%)',W-M-2,y+4.5,{align:'right'});
+      y+=barH+barGap;
+    });
+    y+=4;
+  }
+
+  // ── DAILY LINE CHART ──
+  if(y>220){doc.addPage();wm();y=20;}
+  secHead('Daily Spending — '+now.toLocaleString('en',{month:'long',year:'numeric'}));
+  const dim=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();
+  const dayTotals=Array(dim).fill(0);
+  me.forEach(e=>{const d=parseInt(e.date.split('-')[2]);if(d>=1&&d<=dim)dayTotals[d-1]+=e.amt;});
+  const maxDay=Math.max(...dayTotals,1);
+  const chartX=M,chartY=y,chartW=W-M*2,chartH=28;
+  // Chart background
+  doc.setFillColor(248,248,252);doc.rect(chartX,chartY,chartW,chartH,'F');
+  // Grid lines
+  doc.setDrawColor(230,230,235);doc.setLineWidth(0.3);
+  [0.25,0.5,0.75,1].forEach(f=>{
+    const gy=chartY+chartH-(chartH*f);
+    doc.line(chartX,gy,chartX+chartW,gy);
+    doc.setFont('helvetica','normal');doc.setFontSize(5.5);doc.setTextColor(180,180,180);
+    doc.text('Rs'+Math.round(maxDay*f).toLocaleString(),chartX+chartW+1,gy+1);
+  });
+  // Bars
+  const bw2=Math.max(chartW/dim-0.5,1);
+  dayTotals.forEach((v,i)=>{
+    if(v===0)return;
+    const bh=(v/maxDay)*chartH;
+    const bx=chartX+(i/dim)*chartW;
+    const by=chartY+chartH-bh;
+    const isToday=i===now.getDate()-1;
+    doc.setFillColor(isToday?124:139,isToday?58:92,isToday?237:246);
+    doc.rect(bx,by,bw2,bh,'F');
+  });
+  // Today marker
+  doc.setFont('helvetica','bold');doc.setFontSize(6);doc.setTextColor(124,58,237);
+  doc.text('TODAY',chartX+(now.getDate()-1)/dim*chartW,chartY-1);
+  // X axis labels
+  doc.setTextColor(160,160,160);doc.setFont('helvetica','normal');doc.setFontSize(5.5);
+  [1,8,15,22,dim].forEach(d=>{
+    doc.text(String(d),chartX+(d-1)/dim*chartW,chartY+chartH+4);
+  });
+  y+=chartH+12;
+
+  // ── TODAY'S EXPENSES ──
+  if(y>230){doc.addPage();wm();y=20;}
   secHead("Today's Expenses ("+te.length+")");
-  if(!te.length){doc.setFont('helvetica','italic');doc.setFontSize(10);doc.setTextColor(156,163,175);doc.text('No expenses today.',M,y);y+=8;}
-  else{
-    doc.setFillColor(237,233,254);doc.rect(M,y,W-M*2,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(67,56,202);
+  if(!te.length){
+    doc.setFont('helvetica','italic');doc.setFontSize(9);doc.setTextColor(156,163,175);
+    doc.text('No expenses recorded today.',M,y);y+=8;
+  } else {
+    doc.setFillColor(240,240,248);doc.rect(M,y,W-M*2,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(50,50,80);
     doc.text('Description',M+2,y+5);doc.text('Category',M+78,y+5);doc.text('Amount',W-M-2,y+5,{align:'right'});y+=9;
     te.forEach((e,i)=>{
       if(y>272){doc.addPage();wm();y=20;}
       const c=CAT[e.cat]||CAT.other;
-      doc.setFillColor(i%2===0?255:250,i%2===0?255:249,i%2===0?255:255);doc.rect(M,y-1,W-M*2,7,'F');
-      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(30,27,75);
-      doc.text((e.desc.length>38?e.desc.slice(0,36)+'…':e.desc),M+2,y+4);doc.text(c.label,M+78,y+4);
-      doc.setFont('helvetica','bold');doc.text(fmt(e.amt),W-M-2,y+4,{align:'right'});y+=7;
+      doc.setFillColor(i%2===0?255:250,i%2===0?255:250,i%2===0?255:255);
+      doc.rect(M,y-1,W-M*2,7,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(30,30,30);
+      doc.text((e.desc.length>38?e.desc.slice(0,36)+'…':e.desc),M+2,y+4);
+      doc.text(c.label,M+78,y+4);
+      doc.setFont('helvetica','bold');doc.setTextColor(10,10,14);
+      doc.text(fmt(e.amt),W-M-2,y+4,{align:'right'});y+=7;
     });
-    doc.setFillColor(124,58,237);doc.rect(M,y,W-M*2,8,'F');doc.setTextColor(255,255,255);doc.setFontSize(10);
+    doc.setFillColor(10,10,14);doc.rect(M,y,W-M*2,8,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(9.5);doc.setFont('helvetica','bold');
     doc.text("Today's Total:",M+2,y+6);doc.text(fmt(tt),W-M-2,y+6,{align:'right'});y+=13;
   }
-  if(y>242){doc.addPage();wm();y=20;}
-  secHead('Monthly Breakdown');
-  const bycat={};me.forEach(e=>{bycat[e.cat]=(bycat[e.cat]||0)+e.amt;});
-  Object.entries(bycat).sort((a,b)=>b[1]-a[1]).forEach(([k,v])=>{
-    if(y>272){doc.addPage();wm();y=20;}
-    const c=CAT[k]||CAT.other,p=mt>0?Math.round(v/mt*100):0;
-    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(30,27,75);
-    doc.text(c.emoji+' '+c.label,M,y+4);doc.setFont('helvetica','bold');doc.text(fmt(v)+' ('+p+'%)',W-M-2,y+4,{align:'right'});y+=6;
-    const bw=W-M*2-2,fw=Math.round(bw*p/100);
-    doc.setFillColor(237,233,254);doc.roundedRect(M,y,bw,4,1,1,'F');
-    if(fw>0){const rgb=hexRgb(c.color);doc.setFillColor(rgb.r,rgb.g,rgb.b);doc.roundedRect(M,y,fw,4,1,1,'F');}y+=9;
-  });
-  if(y>235){doc.addPage();wm();y=20;}
-  secHead('Friends Owed ('+al.length+')');
-  if(!al.length){doc.setFont('helvetica','italic');doc.setFontSize(10);doc.setTextColor(156,163,175);doc.text('No outstanding loans.',M,y);y+=8;}
-  else{
-    doc.setFillColor(219,234,254);doc.rect(M,y,W-M*2,7,'F');doc.setFont('helvetica','bold');doc.setFontSize(9);doc.setTextColor(29,78,216);
+
+  // ── FRIENDS ──
+  if(al.length>0){
+    if(y>235){doc.addPage();wm();y=20;}
+    secHead('Friends — Money Owed to Me ('+al.length+')');
+    doc.setFillColor(235,244,255);doc.rect(M,y,W-M*2,7,'F');
+    doc.setFont('helvetica','bold');doc.setFontSize(8.5);doc.setTextColor(29,78,216);
     doc.text('Friend',M+2,y+5);doc.text('Note',M+60,y+5);doc.text('Days',M+112,y+5);doc.text('Amount',W-M-2,y+5,{align:'right'});y+=9;
     al.forEach((l,i)=>{
       if(y>272){doc.addPage();wm();y=20;}
       const ds=daysSince(l.date);
-      doc.setFillColor(i%2===0?255:248,i%2===0?255:248,i%2===0?255:255);doc.rect(M,y-1,W-M*2,7,'F');
-      doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(ds>14?180:30,ds>14?30:27,ds>14?30:75);
-      doc.text(l.name.slice(0,22),M+2,y+4);doc.text((l.note||'—').slice(0,25),M+60,y+4);doc.text(ds+'d'+(ds>14?' !!':''),M+112,y+4);
-      doc.setFont('helvetica','bold');doc.setTextColor(59,130,246);doc.text(fmt(l.amt),W-M-2,y+4,{align:'right'});y+=7;
+      doc.setFillColor(i%2===0?255:248,i%2===0?255:250,i%2===0?255:255);
+      doc.rect(M,y-1,W-M*2,7,'F');
+      doc.setFont('helvetica','normal');doc.setFontSize(8.5);
+      doc.setTextColor(ds>14?200:30,30,ds>14?30:30);
+      doc.text(l.name.slice(0,22),M+2,y+4);
+      doc.text((l.note||'—').slice(0,25),M+60,y+4);
+      doc.text(ds+'d'+(ds>14?' !!':''),M+112,y+4);
+      doc.setFont('helvetica','bold');doc.setTextColor(59,130,246);
+      doc.text(fmt(l.amt),W-M-2,y+4,{align:'right'});y+=7;
     });
-    doc.setFillColor(59,130,246);doc.rect(M,y,W-M*2,8,'F');doc.setTextColor(255,255,255);doc.setFontSize(10);
+    doc.setFillColor(59,130,246);doc.rect(M,y,W-M*2,8,'F');
+    doc.setTextColor(255,255,255);doc.setFontSize(9.5);doc.setFont('helvetica','bold');
     doc.text('Total owed to '+userName+':',M+2,y+6);doc.text(fmt(lt),W-M-2,y+6,{align:'right'});y+=13;
   }
+
+  // ── FOOTER ON ALL PAGES ──
   const tp=doc.internal.getNumberOfPages();
   for(let i=1;i<=tp;i++){
-    doc.setPage(i);doc.setFillColor(245,243,255);doc.rect(0,282,W,15,'F');doc.setDrawColor(196,181,253);doc.setLineWidth(.3);doc.line(0,282,W,282);
-    doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(109,40,217);doc.text('ARYAL CORP',M,289);
-    doc.setFont('helvetica','italic');doc.setTextColor(156,163,175);doc.text('KharchaTracker · '+now.toLocaleString('en-US'),W/2,289,{align:'center'});
-    doc.setFont('helvetica','normal');doc.text('Page '+i+'/'+tp,W-M,289,{align:'right'});
+    doc.setPage(i);
+    // Footer bar
+    doc.setFillColor(10,10,14);doc.rect(0,282,W,15,'F');
+    // Mini A logo in footer
+    doc.setDrawColor(255,255,255);doc.setLineWidth(0.6);
+    doc.line(M+3,286,M,293);doc.line(M+3,286,M+6,293);doc.line(M+1,290.5,M+5,290.5);
+    // Text
+    doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(255,255,255);
+    doc.text('ARYAL CORP',M+9,288);
+    doc.setFont('helvetica','normal');doc.setTextColor(150,150,150);
+    doc.text('Serve the World',M+9,292);
+    doc.setTextColor(150,150,150);
+    doc.text('KharchaTracker · '+now.toLocaleDateString('en-US'),W/2,290,{align:'center'});
+    doc.text('Page '+i+' / '+tp,W-M,290,{align:'right'});
   }
+
   doc.save('KharchaTracker_'+userName.replace(/\s+/g,'_')+'_'+todayStr()+'.pdf');
 }
 
@@ -1830,29 +1984,37 @@ let monthBudget = parseFloat(localStorage.getItem('kh_budget') || '0');
 let chatHistory = [];
 
 /* ── Mode ── */
-function checkModeOnLogin() {
-  if (!userMode) { document.getElementById('modeModal').style.display = 'flex'; }
-  else { applyModeUI(); }
+function checkModeOnLogin(){ /* removed */ }
+function selectMode(m){ /* removed */ }
+function switchMode(){ /* removed */ }
+function applyModeUI(){ /* removed */ }
+
+/* ══ GOOGLE PHOTO + GALLERY UPLOAD ══ */
+let userAvatarIsPhoto = false;
+function useGooglePhoto(){
+  const user = auth.currentUser;
+  if(user && user.photoURL){
+    userAvatar = user.photoURL;
+    userAvatarIsPhoto = true;
+    save(); updateHeaderAvatar(); updateProfileDisplay();
+    showNotif('✅ Google photo set!','good');
+  } else {
+    showNotif('No Google photo found.','warn');
+  }
 }
-function selectMode(m) {
-  userMode = m;
-  localStorage.setItem('kh_mode', m);
-  document.getElementById('modeModal').style.display = 'none';
-  applyModeUI();
-  showNotif((m==='student'?'🎓 Student':'👔 Adult')+' Mode activated!','good');
-}
-function switchMode() {
-  userMode = userMode === 'student' ? 'adult' : 'student';
-  localStorage.setItem('kh_mode', userMode);
-  applyModeUI();
-  showNotif((userMode==='student'?'🎓 Switched to Student':'👔 Switched to Adult')+' Mode','good');
-}
-function applyModeUI() {
-  const label = userMode === 'student' ? '🎓 Student Mode' : '👔 Adult Mode';
-  const el1 = document.getElementById('modeLabel');
-  const el2 = document.getElementById('aiModeBadge');
-  if(el1) el1.textContent = label;
-  if(el2) el2.textContent = label;
+function uploadGalleryPhoto(event){
+  const file = event.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ showNotif('Image too large. Max 2MB.','warn'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    userAvatar = e.target.result;
+    userAvatarIsPhoto = true;
+    save(); updateHeaderAvatar(); updateProfileDisplay();
+    showNotif('✅ Photo updated!','good');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
 }
 
 /* ── Language ── */
@@ -1868,7 +2030,7 @@ function setAILang(v) {
 /* ── Budget ── */
 function openBudgetSetter() {
   document.getElementById('budgetInput').value = monthBudget || '';
-  document.getElementById('budgetModal').style.display = 'flex';
+  openModal('budgetModal');
 }
 function saveBudget() {
   const v = parseFloat(document.getElementById('budgetInput').value);
@@ -1916,7 +2078,37 @@ function checkBudgetWarning(pct, left) {
 /* ── Claude API ── */
 async function callClaude(prompt, imageBase64=null) {
   const langInstr = aiLang==='nepali' ? 'Always respond in Nepali language.' : aiLang==='auto' ? 'Respond in the same language the user uses.' : 'Always respond in English.';
-  const systemPrompt = `You are Aries, a witty and intelligent AI finance assistant built into KharchaTracker, a Nepali expense tracking app. Your name is Aries — always introduce yourself as Aries if asked. Be helpful, concise, and occasionally funny. Currency is NPR (Rs). ${langInstr}`;
+  // Build spending context
+  const me = monthExp();
+  const total = me.reduce((s,e)=>s+e.amt,0);
+  const bycat = {};
+  me.forEach(e=>{bycat[e.cat]=(bycat[e.cat]||0)+e.amt;});
+  const catSummary = Object.entries(bycat).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`${CAT[k]?.label||k}: Rs${Math.round(v)}`).join(', ');
+  const days = new Date().getDate();
+  const avgDaily = days>0?Math.round(total/days):0;
+  const pendingLoans = loans.filter(l=>!l.settled).reduce((s,l)=>s+l.amt,0);
+  const spendingContext = me.length>0 ? `\n\nUSER SPENDING DATA (this month):\n- Total spent: Rs${Math.round(total)}\n- Daily average: Rs${avgDaily}\n- Transactions: ${me.length}\n- By category: ${catSummary||'none'}\n- Friends owe user: Rs${Math.round(pendingLoans)}\n- Monthly budget: ${monthBudget?'Rs'+Math.round(monthBudget):'not set'}` : '\n\nUser has no expenses recorded yet this month.';
+  const systemPrompt = `You are Aries, a witty and intelligent AI finance assistant built into KharchaTracker.
+
+ABOUT YOU:
+- Your name is Aries
+- You were created by Aryal Corp
+- Aryal Corp was founded by Sanskar Aryal on May 16, 2026
+- It started as a student project and is now a full-scale startup
+- Aryal Corp's tagline is "Serve the World"
+- KharchaTracker is Aryal Corp's flagship product — a Nepal-focused expense tracking app
+
+YOUR PERSONALITY:
+- Witty, sharp, occasionally sarcastic but always helpful
+- You give real insights based on actual user data
+- You're like a smart friend who knows finance, not a boring chatbot
+- Use emojis sparingly, only when they add value
+- Be concise — no long boring paragraphs
+- Currency is always NPR (Rs)
+
+${spendingContext}
+
+${langInstr}`;
 
   const userContent = imageBase64
     ? [{ type:'image', source:{ type:'base64', media_type:'image/jpeg', data:imageBase64 }}, { type:'text', text:prompt }]
