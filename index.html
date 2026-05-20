@@ -277,11 +277,11 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 .chat-hdr{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px}
 .chat-hdr-title{font-size:14px;font-weight:700;color:var(--ink)}
 .chat-lang{margin-left:auto;background:var(--acl);color:var(--acc);border:none;border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;font-family:'Sora',sans-serif;cursor:pointer}
-.chat-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;min-height:0}
-.msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5;animation:slideUp .2s ease;word-break:break-word}
-.msg-ai{background:var(--border);color:var(--ink);border-bottom-left-radius:4px;align-self:flex-start}
+.chat-msgs{height:280px;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.5;animation:slideUp .2s ease}
+.msg-ai{background:var(--acl);color:var(--ink);border-bottom-left-radius:4px;align-self:flex-start}
 .msg-user{background:var(--acc);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
-.msg-typing{background:var(--border);color:var(--ink);padding:12px 16px;border-radius:14px;border-bottom-left-radius:4px;align-self:flex-start;font-size:13px}
+.msg-typing{background:var(--acl);color:var(--ink);padding:12px 16px;border-radius:14px;border-bottom-left-radius:4px;align-self:flex-start;font-size:13px}
 .chat-input-wrap{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
 .chat-input{flex:1;border:2px solid var(--border);border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);outline:none}
 .chat-send{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:16px;cursor:pointer}
@@ -321,15 +321,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
 <!-- LOADING -->
 <div id="loadScreen">
-  <div class="load-icon">
-    <svg width="56" height="56" viewBox="0 0 62 62" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="31" cy="31" r="30" fill="rgba(255,255,255,.1)" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
-      <line x1="31" y1="14" x2="20" y2="46" stroke="#fff" stroke-width="3" stroke-linecap="butt"/>
-      <line x1="31" y1="14" x2="42" y2="46" stroke="#fff" stroke-width="3" stroke-linecap="butt"/>
-      <line x1="23" y1="36" x2="39" y2="36" stroke="#fff" stroke-width="3"/>
-      <circle cx="31" cy="14" r="2.5" fill="#C4B5FD"/>
-    </svg>
-  </div>
+  <div class="load-icon">💸</div>
   <div class="load-title">Kharcha<span>Tracker</span></div>
   <div class="load-sub">by Aryal Corp</div>
   <div class="load-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
@@ -449,15 +441,15 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
       <div class="field"><label>Category</label>
         <select id="inpCat">
-          <option value="food">Food &amp; Drinks</option>
-          <option value="transport">Transport</option>
-          <option value="education">Education</option>
-          <option value="rent">Rent</option>
-          <option value="health">Health</option>
-          <option value="phone">Phone / Internet</option>
-          <option value="clothes">Clothes</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="other">Other</option>
+          <option value="food">🍱 Food &amp; Drinks</option>
+          <option value="transport">🚌 Transport</option>
+          <option value="education">📚 Education</option>
+          <option value="rent">🏠 Rent</option>
+          <option value="health">💊 Health</option>
+          <option value="phone">📱 Phone / Internet</option>
+          <option value="clothes">👕 Clothes</option>
+          <option value="entertainment">🎮 Entertainment</option>
+          <option value="other">📦 Other</option>
         </select>
       </div>
       <button class="btn btn-p" id="btnAdd" onclick="addExpense()">+ Add Expense</button>
@@ -466,20 +458,20 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
     <!-- Search + Filter -->
     <div class="search-bar">
       <div class="search-wrap">
-        <svg class="search-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="search-ico">🔍</span>
         <input class="search-input" type="text" id="searchInput" placeholder="Search expenses…" oninput="renderList()"/>
       </div>
       <select class="filter-select" id="filterCat" onchange="renderList()">
         <option value="">All</option>
-        <option value="food">Food</option>
-        <option value="transport">Transport</option>
-        <option value="education">Education</option>
-        <option value="rent">Rent</option>
-        <option value="health">Health</option>
-        <option value="phone">Phone</option>
-        <option value="clothes">Clothes</option>
-        <option value="entertainment">Entertainment</option>
-        <option value="other">Other</option>
+        <option value="food">🍱 Food</option>
+        <option value="transport">🚌 Transport</option>
+        <option value="education">📚 Education</option>
+        <option value="rent">🏠 Rent</option>
+        <option value="health">💊 Health</option>
+        <option value="phone">📱 Phone</option>
+        <option value="clothes">👕 Clothes</option>
+        <option value="entertainment">🎮 Entertainment</option>
+        <option value="other">📦 Other</option>
       </select>
     </div>
 
@@ -491,7 +483,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
         <span class="card-hdr-title" id="listTitle">This Month</span>
         <span class="badge bp" id="listCount">0 entries</span>
       </div>
-      <div id="expList"><div class="empty"><span class="empty-ico" style="font-size:32px;display:block;margin-bottom:10px;opacity:.3">—</span>No expenses yet.</div></div>
+      <div id="expList"><div class="empty"><span class="empty-ico">🧾</span>No expenses yet.</div></div>
     </div>
   </section>
 
@@ -509,7 +501,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
     </div>
     <div class="card">
       <div class="card-hdr"><span class="card-hdr-title">Outstanding</span><span class="badge bb" id="loansCount">0</span></div>
-      <div id="loansList"><div class="empty"><span style="font-size:32px;display:block;margin-bottom:10px;opacity:.3">—</span>No loans yet.</div></div>
+      <div id="loansList"><div class="empty"><span class="empty-ico">🤝</span>No loans yet.</div></div>
       <div class="fr-total" id="loansTotal" style="display:none"><span class="ft-l">Total owed to me</span><span class="ft-v" id="loansTotalAmt">Rs 0</span></div>
     </div>
     <div class="card" id="settledCard" style="display:none">
@@ -522,6 +514,14 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
   <section class="section" id="tab-analytics">
     <p class="sec-title" style="margin-top:14px">Analytics</p>
     <div class="month-compare" id="monthCompare"></div>
+
+    <!-- Week vs Week -->
+    <div class="card card-pad" style="margin-bottom:13px">
+      <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:13px">This week vs last week</div>
+      <div id="weekCompare" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"></div>
+      <div class="day-wrap" style="height:120px"><canvas id="weekChart"></canvas></div>
+    </div>
+
     <div class="card card-pad">
       <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:13px">Spending by category</div>
       <div id="catBars"><div style="text-align:center;color:var(--muted);font-size:13px;padding:16px 0">No data yet.</div></div>
@@ -539,15 +539,15 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
     <!-- Budget Card -->
     <div class="card card-pad" style="margin-bottom:13px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <div style="font-size:14px;font-weight:700;color:var(--ink2)">Monthly Budget</div>
-        <button id="budgetSetBtn" onclick="openBudgetSetter()" style="background:var(--acl);color:var(--acc);border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif">Set Budget</button>
+        <div style="font-size:14px;font-weight:700;color:var(--ink2)">💰 Monthly Budget</div>
+        <button onclick="openBudgetSetter()" style="background:var(--acl);color:var(--acc);border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif">${monthBudget?'Edit':'Set Budget'}</button>
       </div>
       <div id="budgetDisplay"></div>
     </div>
 
     <!-- AI Insights -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-      <div style="font-size:14px;font-weight:700;color:var(--ink)">Aries Says</div>
+      <div style="font-size:14px;font-weight:700;color:var(--ink)">🤖 Aries Says...</div>
       <button onclick="loadAIInsights()" id="refreshInsightsBtn" style="background:var(--acl);color:var(--acc);border:none;border-radius:20px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif">Refresh</button>
     </div>
     <div id="insContainer"></div>
@@ -560,12 +560,25 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <div class="profile-av-big" id="profAvatar" onclick="openAvatarModal()"></div>
       <div class="profile-name-display" id="profName"></div>
       <div class="profile-joined" id="profJoined"></div>
+      <!-- Streak display in hero -->
+      <div id="streakDisplay" style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:20px;padding:5px 14px">
+        <span style="font-size:16px">🔥</span>
+        <span id="streakCount" style="font-size:14px;font-weight:800;color:#fff">0</span>
+        <span style="font-size:11px;color:rgba(255,255,255,.7);font-weight:500">day streak</span>
+      </div>
     </div>
     <div class="profile-stats">
       <div class="pst"><div class="pst-val" id="pstEntries">0</div><div class="pst-label">Entries</div></div>
-      <div class="pst"><div class="pst-val" id="pstMonths">0</div><div class="pst-label">Months</div></div>
-      <div class="pst"><div class="pst-val" id="pstLoans">0</div><div class="pst-label">Loans</div></div>
+      <div class="pst"><div class="pst-val" id="pstStreak">0</div><div class="pst-label">Best Streak</div></div>
+      <div class="pst"><div class="pst-val" id="pstBadges">0</div><div class="pst-label">Badges</div></div>
     </div>
+
+    <!-- Badges Section -->
+    <div class="card card-pad" style="margin-bottom:14px">
+      <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:14px">Achievements</div>
+      <div id="badgesGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
+    </div>
+
     <div class="card card-pad">
       <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px">Edit Name</div>
       <div class="field"><input type="text" id="profNameInput" placeholder="Your name" maxlength="30"/></div>
@@ -590,13 +603,11 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       </div>
       <label class="tog"><input type="checkbox" id="themeToggle" onchange="toggleTheme()"><div class="tog-track"></div><div class="tog-thumb"></div></label>
     </div>
-
     <!-- Export -->
     <div class="export-row">
       <button class="btn-export btn-export-csv" onclick="exportCSV()">Export CSV</button>
       <button class="btn-export btn-export-pdf" onclick="generatePDF()">Export PDF</button>
     </div>
-
     <!-- Backup -->
     <div class="card card-pad" style="margin-bottom:14px">
       <div style="font-size:14px;font-weight:700;color:var(--ink2);margin-bottom:12px">Backup &amp; Restore</div>
@@ -607,12 +618,11 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="restoreJSON(event)"/>
     </div>
 
-    <!-- Sign Out + Clear Data — side by side, minimal -->
+    <!-- Sign Out + Clear Data side by side -->
     <div style="display:flex;gap:10px;margin-bottom:20px">
       <button onclick="doSignOut()" style="flex:1;padding:13px;border-radius:var(--rsm);border:1.5px solid var(--border);background:none;color:var(--muted);font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s" onmouseover="this.style.borderColor='var(--ink)';this.style.color='var(--ink)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">Sign Out</button>
       <button onclick="clearAllData()" style="flex:1;padding:13px;border-radius:var(--rsm);border:1.5px solid var(--redl);background:none;color:var(--red);font-size:13px;font-weight:600;font-family:'Sora',sans-serif;cursor:pointer;transition:all .2s" onmouseover="this.style.background='var(--redl)'" onmouseout="this.style.background='none'">Clear Data</button>
     </div>
-
     <div style="text-align:center;font-size:11px;color:var(--muted);padding-bottom:8px;letter-spacing:.08em">ARYAL CORP · KHARCHA TRACKER</div>
   </section>
 
@@ -642,7 +652,7 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 
   <!-- ARIES — Alien X Floating Button -->
   <style>
-    #ariesBtn { position:fixed;bottom:108px;right:18px;z-index:300;width:58px;height:58px;cursor:pointer;filter:drop-shadow(0 4px 16px rgba(124,58,237,.6));transition:transform .2s;-webkit-tap-highlight-color:transparent; }
+    #ariesBtn { position:fixed;bottom:100px;right:18px;z-index:300;width:62px;height:62px;cursor:pointer;filter:drop-shadow(0 4px 16px rgba(124,58,237,.6));transition:transform .2s;-webkit-tap-highlight-color:transparent; }
     #ariesBtn:active{transform:scale(.9)}
     #ariesBtn:hover{transform:scale(1.08)}
     .aries-eye{transition:fill .15s,filter .15s}
@@ -1303,6 +1313,8 @@ function launchApp(){
   buildMonthTabs();
   refresh();
   checkAlerts();
+  // Round 2 — check badges and streak on launch
+  setTimeout(()=>{ checkBadges(); }, 1000);
   // Phase 2 — AI init
   // No mode selection needed anymore
   renderBudget();
@@ -1328,8 +1340,9 @@ function updateHeaderAvatar(){
 function applyTheme(){
   document.documentElement.setAttribute('data-theme',theme);
   const dark=theme==='dark';
-  const btn=document.getElementById('themeBtn');if(btn)btn.textContent=dark?'☀':'○';
+  const btn=document.getElementById('themeBtn');if(btn)btn.textContent=dark?'☀️':'🌙';
   const tog=document.getElementById('themeToggle');if(tog)tog.checked=dark;
+  const emoji=document.getElementById('themeEmoji');if(emoji)emoji.textContent=dark?'☀️':'🌙';
 }
 function toggleTheme(){theme=theme==='dark'?'light':'dark';applyTheme();save();}
 
@@ -1523,10 +1536,11 @@ function addExpense(){
   // If we're viewing a different month, switch back to current
   viewingMonth=monthKey();
   save();refresh();checkAlerts();
+  setTimeout(()=>checkBadges(),400);
   document.getElementById('inpDesc').value='';
   document.getElementById('inpAmt').value='';
   const b=document.getElementById('btnAdd');
-  b.textContent='✓ Added!';b.style.background='#5B21B6';
+  b.textContent='Added';b.style.background='#5B21B6';
   setTimeout(()=>{b.textContent='+ Add Expense';b.style.background='';},1300);
 }
 
@@ -1541,7 +1555,7 @@ function addLoan(){
   save();refresh();renderFriends();
   document.getElementById('fName').value='';document.getElementById('fAmt').value='';document.getElementById('fNote').value='';
 }
-function settleLoan(id){const l=loans.find(l=>l.id===id);if(l){l.settled=true;l.settledDate=todayStr();}save();refresh();renderFriends();showNotif('🎉 Marked as settled!','good');}
+function settleLoan(id){const l=loans.find(l=>l.id===id);if(l){l.settled=true;l.settledDate=todayStr();}save();refresh();renderFriends();showNotif('Marked as settled!','good');setTimeout(()=>checkBadges(),400);}
 function deleteLoan(id){loans=loans.filter(l=>l.id!==id);save();refresh();renderFriends();}
 function renderFriends(){
   const active=loans.filter(l=>!l.settled),settled=loans.filter(l=>l.settled);
@@ -1611,7 +1625,8 @@ function renderCharts(){
     data:{labels:Array.from({length:dim},(_,i)=>i+1),datasets:[{data:dt,backgroundColor:dt.map((v,i)=>i===today-1?'#C4B5FD':v>0?'#8B5CF6':'#DDD6FE'),borderRadius:5,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},scales:{x:{ticks:{color:'#9CA3AF',font:{size:10},autoSkip:true,maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:'#9CA3AF',font:{size:10},callback:v=>'Rs'+Math.round(v)},grid:{color:'rgba(139,92,246,0.06)'}}}}
   });
-}
+  // Week vs week
+  renderWeekChart();
 
 /* ══ AI INSIGHTS ══ */
 function renderInsights(){
@@ -1683,19 +1698,161 @@ Format your response as exactly 3-4 insights. Each insight should be on a new li
 }
 
 /* ══ PROFILE ══ */
-function updateProfileDisplay(){
-  const profEl = document.getElementById('profAvatar');
-  if(userAvatar && (userAvatar.startsWith('http') || userAvatar.startsWith('data:'))){
-    profEl.innerHTML = `<img src="${userAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=getAvatarSVG('a1')"/>`;
-  } else {
-    profEl.innerHTML = getAvatarSVG(userAvatar);
+/* ══════════════════════════════
+   ROUND 2 — STREAK + BADGES
+══════════════════════════════ */
+
+/* ── Streak ── */
+function calcStreak(){
+  // Get all unique dates with expenses, sorted descending
+  const dates=[...new Set(expenses.map(e=>e.date).filter(Boolean))].sort((a,b)=>b.localeCompare(a));
+  if(!dates.length) return {current:0,best:0};
+  let current=0,best=0,streak=0;
+  const today=todayStr();
+  const yesterday=new Date(Date.now()-86400000).toISOString().split('T')[0];
+  // Start from today or yesterday
+  let checkDate=dates[0]===today||dates[0]===yesterday?dates[0]:null;
+  if(!checkDate) return {current:0,best:parseInt(localStorage.getItem('ac3_bestStreak')||'0')};
+  // Count consecutive days
+  for(let i=0;i<dates.length;i++){
+    if(i===0){streak=1;checkDate=dates[0];}
+    else{
+      const prev=new Date(dates[i-1]);const curr=new Date(dates[i]);
+      const diff=(prev-curr)/86400000;
+      if(diff===1){streak++;}else{best=Math.max(best,streak);streak=1;}
+    }
   }
+  current=streak;best=Math.max(best,streak);
+  const stored=parseInt(localStorage.getItem('ac3_bestStreak')||'0');
+  const finalBest=Math.max(best,stored);
+  localStorage.setItem('ac3_bestStreak',String(finalBest));
+  return {current,best:finalBest};
+}
+
+/* ── Badges ── */
+const BADGES=[
+  {id:'first_expense', name:'First Step',    desc:'Logged your first expense',          icon:'◈', check:()=>expenses.length>=1},
+  {id:'week_streak',   name:'Week Warrior',  desc:'7-day logging streak',               icon:'◆', check:()=>calcStreak().current>=7},
+  {id:'month_streak',  name:'30-Day Legend', desc:'30-day logging streak',              icon:'★', check:()=>calcStreak().current>=30},
+  {id:'hundred',       name:'Centurion',     desc:'Logged 100 expenses',                icon:'◉', check:()=>expenses.length>=100},
+  {id:'fifty',         name:'Half Century',  desc:'Logged 50 expenses',                 icon:'◎', check:()=>expenses.length>=50},
+  {id:'ten',           name:'Getting Going', desc:'Logged 10 expenses',                 icon:'○', check:()=>expenses.length>=10},
+  {id:'budget_set',    name:'Planner',       desc:'Set a monthly budget',               icon:'▣', check:()=>!!monthBudget},
+  {id:'loan_settled',  name:'Fair &amp; Square', desc:'Settled your first loan',        icon:'◇', check:()=>loans.some(l=>l.settled)},
+  {id:'three_cats',    name:'Diversified',   desc:'Used 3+ spending categories',        icon:'▦', check:()=>new Set(expenses.map(e=>e.cat)).size>=3},
+  {id:'all_cats',      name:'Full Spectrum', desc:'Used all 9 spending categories',     icon:'▩', check:()=>new Set(expenses.map(e=>e.cat)).size>=9},
+  {id:'month_veteran', name:'Monthly Pro',   desc:'Tracked expenses for 3+ months',    icon:'◐', check:()=>new Set(expenses.map(e=>e.date?e.date.slice(0,7):'')).size>=3},
+  {id:'pdf_export',    name:'Documenter',    desc:'Generated your first PDF report',    icon:'▤', check:()=>!!localStorage.getItem('ac3_pdf_exported')},
+];
+
+function checkBadges(){
+  const earned=JSON.parse(localStorage.getItem('ac3_badges')||'[]');
+  const newBadges=[];
+  BADGES.forEach(b=>{
+    if(!earned.includes(b.id)&&b.check()){
+      earned.push(b.id);
+      newBadges.push(b);
+    }
+  });
+  if(newBadges.length){
+    localStorage.setItem('ac3_badges',JSON.stringify(earned));
+    newBadges.forEach((b,i)=>setTimeout(()=>showBadgePopup(b),i*1500));
+  }
+  return earned;
+}
+
+function showBadgePopup(badge){
+  // Remove existing popup
+  document.getElementById('badgePopup')?.remove();
+  const pop=document.createElement('div');
+  pop.id='badgePopup';
+  pop.style.cssText=`position:fixed;bottom:110px;left:50%;transform:translateX(-50%);z-index:400;background:var(--card);border:1.5px solid var(--acc);border-radius:16px;padding:14px 20px;box-shadow:0 8px 32px rgba(124,58,237,.3);display:flex;align-items:center;gap:12px;max-width:300px;animation:slideUp .4s cubic-bezier(.34,1.56,.64,1)`;
+  pop.innerHTML=`
+    <div style="width:40px;height:40px;border-radius:50%;background:var(--acl);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--acc);font-weight:900;flex-shrink:0">${badge.icon}</div>
+    <div>
+      <div style="font-size:10px;font-weight:700;color:var(--acc);letter-spacing:.1em;text-transform:uppercase;margin-bottom:2px">Badge Unlocked</div>
+      <div style="font-size:13px;font-weight:700;color:var(--ink)">${badge.name}</div>
+      <div style="font-size:11px;color:var(--muted)">${badge.desc}</div>
+    </div>`;
+  document.body.appendChild(pop);
+  setTimeout(()=>{pop.style.opacity='0';pop.style.transition='opacity .4s';setTimeout(()=>pop.remove(),400);},3500);
+}
+
+function renderBadgesGrid(){
+  const earned=JSON.parse(localStorage.getItem('ac3_badges')||'[]');
+  const el=document.getElementById('badgesGrid');
+  if(!el)return;
+  el.innerHTML=BADGES.map(b=>{
+    const has=earned.includes(b.id);
+    return `<div style="
+      background:${has?'var(--acl)':'var(--border)'};
+      border-radius:12px;padding:12px 8px;text-align:center;
+      opacity:${has?1:.45};transition:all .2s;
+    " title="${b.desc}">
+      <div style="font-size:22px;color:${has?'var(--acc)':'var(--muted)'};font-weight:900;margin-bottom:4px">${b.icon}</div>
+      <div style="font-size:10px;font-weight:700;color:${has?'var(--ink)':'var(--muted)'};line-height:1.3">${b.name}</div>
+    </div>`;
+  }).join('');
+}
+
+/* ── Week vs Week chart ── */
+let weekChartInst=null;
+function renderWeekChart(){
+  const now=new Date();
+  const dayOfWeek=now.getDay(); // 0=Sun
+  // This week: last 7 days including today
+  const thisWeek=Array(7).fill(0);
+  const lastWeek=Array(7).fill(0);
+  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  expenses.forEach(e=>{
+    if(!e.date)return;
+    const d=new Date(e.date);
+    const diff=Math.floor((now-d)/86400000);
+    if(diff>=0&&diff<7) thisWeek[6-diff]+=e.amt;
+    else if(diff>=7&&diff<14) lastWeek[6-(diff-7)]+=e.amt;
+  });
+  const thisTotal=thisWeek.reduce((s,v)=>s+v,0);
+  const lastTotal=lastWeek.reduce((s,v)=>s+v,0);
+  const diff=thisTotal-lastTotal;
+  const wc=document.getElementById('weekCompare');
+  if(wc) wc.innerHTML=`
+    <div class="mc-item"><div class="mc-label">This Week</div><div class="mc-val">${fmt(thisTotal)}</div></div>
+    <div class="mc-item"><div class="mc-label">Last Week</div><div class="mc-val" style="color:${diff>0?'var(--red)':diff<0?'var(--em)':'var(--acc)'}">${diff>0?'▲ '+fmt(diff):diff<0?'▼ '+fmt(-diff):'Same'}</div></div>`;
+  if(weekChartInst){weekChartInst.destroy();weekChartInst=null;}
+  const wctx=document.getElementById('weekChart');
+  if(!wctx)return;
+  const labels=Array(7).fill(0).map((_,i)=>{const d=new Date(now);d.setDate(d.getDate()-(6-i));return DAYS[d.getDay()];});
+  weekChartInst=new Chart(wctx,{
+    type:'bar',
+    data:{
+      labels,
+      datasets:[
+        {label:'This week',data:thisWeek,backgroundColor:'#8B5CF6',borderRadius:4,borderSkipped:false},
+        {label:'Last week',data:lastWeek,backgroundColor:'#DDD6FE',borderRadius:4,borderSkipped:false}
+      ]
+    },
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:true,labels:{font:{size:10},color:'#9CA3AF',boxWidth:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.raw)}}},scales:{x:{ticks:{color:'#9CA3AF',font:{size:10}},grid:{display:false}},y:{ticks:{color:'#9CA3AF',font:{size:10},callback:v=>'Rs'+Math.round(v)},grid:{color:'rgba(139,92,246,0.06)'}}}}
+  });
+}
+
+/* ── Updated profile display ── */
+function updateProfileDisplay(){
+  const profEl=document.getElementById('profAvatar');
+  if(userAvatar&&(userAvatar.startsWith('http')||userAvatar.startsWith('data:'))){
+    profEl.innerHTML=`<img src="${userAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.innerHTML=getAvatarSVG('a1')"/>`;
+  } else {profEl.innerHTML=getAvatarSVG(userAvatar);}
   document.getElementById('profName').textContent=userName;
   document.getElementById('profNameInput').value=userName;
   if(joinDate){const d=new Date(joinDate);document.getElementById('profJoined').textContent='Tracking since '+MONTH_NAMES[d.getMonth()]+' '+d.getFullYear();}
+  // Streak
+  const {current,best}=calcStreak();
+  const sc=document.getElementById('streakCount');if(sc)sc.textContent=current;
+  const ps=document.getElementById('pstStreak');if(ps)ps.textContent=best;
   document.getElementById('pstEntries').textContent=expenses.length;
-  document.getElementById('pstMonths').textContent=new Set(expenses.map(e=>e.date?e.date.slice(0,7):'')).size;
-  document.getElementById('pstLoans').textContent=loans.length;
+  // Badges
+  const earned=JSON.parse(localStorage.getItem('ac3_badges')||'[]');
+  const pb=document.getElementById('pstBadges');if(pb)pb.textContent=earned.length+'/'+BADGES.length;
+  renderBadgesGrid();
 }
 function saveName(){
   const n=document.getElementById('profNameInput').value.trim();
@@ -1969,6 +2126,8 @@ function generatePDF(){
   }
 
   doc.save('KharchaTracker_'+userName.replace(/\s+/g,'_')+'_'+todayStr()+'.pdf');
+  localStorage.setItem('ac3_pdf_exported','1');
+  setTimeout(()=>checkBadges(),500);
 }
 
 /* ══════════════════════════════════════
@@ -2036,15 +2195,14 @@ function saveBudget() {
   localStorage.setItem('kh_budget', v);
   closeModal('budgetModal');
   renderBudget();
-  showNotif('✅ Budget set to Rs '+Math.round(v).toLocaleString(),'good');
+  showNotif('Budget set to Rs '+Math.round(v).toLocaleString(),'good');
+  setTimeout(()=>checkBadges(),400);
 }
 function renderBudget() {
   const el = document.getElementById('budgetDisplay');
-  const btn = document.getElementById('budgetSetBtn');
-  if(btn) btn.textContent = monthBudget ? 'Edit' : 'Set Budget';
   if (!el) return;
   if (!monthBudget) {
-    el.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px 0">No budget set. Tap <b>Set Budget</b> to get started.</div>';
+    el.innerHTML = '<div style="font-size:13px;color:var(--muted);text-align:center;padding:8px 0">No budget set yet. Tap <b>Set Budget</b> to get started!</div>';
     return;
   }
   const spent = monthExp().reduce((s,e)=>s+e.amt,0);
@@ -2066,7 +2224,13 @@ function renderBudget() {
       </div>
     </div>`;
 }
-function checkBudgetWarning(pct, left) { /* removed */ }
+function checkBudgetWarning(pct, left) {
+  const warned = sessionStorage.getItem('kh_budget_warned');
+  if (warned) return;
+  sessionStorage.setItem('kh_budget_warned', '1');
+  callClaude(`The user is ${Math.round(pct)}% through their monthly budget with Rs ${Math.round(Math.abs(left))} ${left<0?'over budget':'left'}. Give a short 1-2 sentence friendly ${userMode==='student'?'encouraging':'professional'} warning. Be concise.`)
+    .then(msg => showAINotif('⚠️ Budget Alert', msg));
+}
 
 /* ── Claude API ── */
 async function callClaude(prompt, imageBase64=null) {
