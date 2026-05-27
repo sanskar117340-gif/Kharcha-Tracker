@@ -1,3 +1,4 @@
+cat > /mnt/user-data/outputs/ExpenseHub_fixed.html << 'HTMLEOF'
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -1371,7 +1372,7 @@ function renderCharts(){
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},scales:{x:{ticks:{color:'#8a7000',font:{size:10},autoSkip:true,maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:'#8a7000',font:{size:10},callback:v=>'Rs'+Math.round(v)},grid:{color:'rgba(245,196,0,0.08)'}}}}
   });
   renderWeekChart();
-} // ← closes renderCharts()
+}
 
 /* ══ WEEK CHART ══ */
 function renderWeekChart(){
@@ -1572,7 +1573,6 @@ function clearAllData(){
 }
 
 /* ══ PHOTO ══ */
-let userAvatarIsPhoto=false;
 function useGooglePhoto(){
   const user=auth.currentUser;
   if(user&&user.photoURL){userAvatar=user.photoURL;userAvatarIsPhoto=true;save();updateHeaderAvatar();updateProfileDisplay();showNotif('✅ Google photo set!','good');}
@@ -1955,3 +1955,5 @@ document.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+HTMLEOF
+echo "Done. File size: $(wc -c < /mnt/user-data/outputs/ExpenseHub_fixed.html) bytes"
