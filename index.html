@@ -279,7 +279,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 <!-- LOADING -->
 <div id="loadScreen">
   <div class="load-icon">
-    <!-- Transformer Bumblebee SVG on load screen -->
     <svg width="80" height="80" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <polygon points="50,5 60,20 75,15 70,30 85,35 72,45 78,60 62,55 58,72 50,60 42,72 38,55 22,60 28,45 15,35 30,30 25,15 40,20" fill="#F5C400" stroke="#1a1100" stroke-width="2"/>
       <circle cx="50" cy="42" r="14" fill="#1a1100"/>
@@ -524,7 +523,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <div class="profile-av-big" id="profAvatar" onclick="openAvatarModal()"></div>
       <div class="profile-name-display" id="profName"></div>
       <div class="profile-joined" id="profJoined"></div>
-      <!-- Level chip in hero -->
       <div id="heroLvlChip" style="margin-top:10px;display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:5px 14px;border:1px solid rgba(245,196,0,.3);background:rgba(245,196,0,.1)">
         <span id="heroLvlIcon" style="font-size:16px">⚡</span>
         <span id="heroLvlName" style="font-size:13px;font-weight:800;color:#F5C400">Rookie</span>
@@ -544,13 +542,11 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
       <div class="pst"><div class="pst-val" id="pstBadges">0</div><div class="pst-label">Badges</div></div>
     </div>
 
-    <!-- LEVEL PROGRESS CARD -->
     <div class="card card-pad" style="margin-bottom:14px">
       <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:14px">⚡ Your Level</div>
       <div id="levelProgressCard"></div>
     </div>
 
-    <!-- BADGES -->
     <div class="card card-pad" style="margin-bottom:14px">
       <div style="font-size:14px;font-weight:700;color:var(--ink);margin-bottom:14px">🏆 Achievements</div>
       <div id="badgesGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px"></div>
@@ -620,34 +616,26 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
     </button>
   </nav>
 
-  <!-- BUMBLEBEE FLOATING BUTTON — Transformer Style -->
+  <!-- BUMBLEBEE FLOATING BUTTON -->
   <svg id="beeBtn" onclick="openAIChat()" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <!-- Autobot-style body -->
     <circle cx="50" cy="50" r="46" fill="#1a1100" stroke="#F5C400" stroke-width="2"/>
-    <!-- Chest armor plates -->
     <rect x="28" y="38" width="44" height="30" rx="6" fill="#F5C400"/>
     <rect x="33" y="43" width="14" height="10" rx="3" fill="#1a1100"/>
     <rect x="53" y="43" width="14" height="10" rx="3" fill="#1a1100"/>
-    <!-- Blue eye glow -->
     <rect x="35" y="45" width="10" height="6" rx="2" fill="#00CFFF"/>
     <rect x="55" y="45" width="10" height="6" rx="2" fill="#00CFFF"/>
-    <!-- Center chest gem -->
     <polygon points="50,57 44,63 50,68 56,63" fill="#00CFFF" stroke="#1a1100" stroke-width="1"/>
-    <!-- Shoulder pads -->
     <rect x="14" y="34" width="14" height="18" rx="4" fill="#F5C400" stroke="#1a1100" stroke-width="1"/>
     <rect x="72" y="34" width="14" height="18" rx="4" fill="#F5C400" stroke="#1a1100" stroke-width="1"/>
-    <!-- Head / face plate -->
     <rect x="34" y="16" width="32" height="22" rx="8" fill="#F5C400"/>
     <rect x="38" y="20" width="10" height="8" rx="3" fill="#1a1100"/>
     <rect x="52" y="20" width="10" height="8" rx="3" fill="#1a1100"/>
     <rect x="40" y="22" width="6" height="4" rx="1" fill="#00CFFF"/>
     <rect x="54" y="22" width="6" height="4" rx="1" fill="#00CFFF"/>
-    <!-- Mouth grill -->
     <rect x="40" y="30" width="20" height="4" rx="2" fill="#1a1100"/>
     <line x1="44" y1="30" x2="44" y2="34" stroke="#F5C400" stroke-width="1"/>
     <line x1="50" y1="30" x2="50" y2="34" stroke="#F5C400" stroke-width="1"/>
     <line x1="56" y1="30" x2="56" y2="34" stroke="#F5C400" stroke-width="1"/>
-    <!-- Legs -->
     <rect x="33" y="68" width="14" height="16" rx="4" fill="#F5C400" stroke="#1a1100" stroke-width="1"/>
     <rect x="53" y="68" width="14" height="16" rx="4" fill="#F5C400" stroke="#1a1100" stroke-width="1"/>
   </svg>
@@ -657,7 +645,6 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--ink);min-hei
 <div class="modal-overlay" id="chatModal" onclick="closeModalOutside(event,'chatModal')" style="align-items:flex-end">
   <div style="background:var(--card);width:100%;max-width:440px;height:88vh;border-radius:24px 24px 0 0;display:flex;flex-direction:column;overflow:hidden;animation:sheetUp .3s cubic-bezier(.34,1.56,.64,1);">
     <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;background:linear-gradient(135deg,#0D0B00,#2a1f00)">
-      <!-- Transformer bee head inline -->
       <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <circle cx="50" cy="50" r="46" fill="#1a1100" stroke="#F5C400" stroke-width="2"/>
         <rect x="28" y="38" width="44" height="30" rx="6" fill="#F5C400"/>
@@ -952,11 +939,9 @@ function renderLevelBanner(){
   document.getElementById('lvlSub').textContent=`${xp} XP${lvl.index<LEVELS.length-1?' · '+remaining+' XP to '+next.name:'· MAX LEVEL'}`;
   document.getElementById('lvlBarFill').style.width=pct+'%';
   document.getElementById('lvlXpLabel').textContent=xp+' XP';
-  // Hero chip
   document.getElementById('heroLvlIcon').textContent=lvl.icon;
   document.getElementById('heroLvlName').textContent=lvl.name;
   document.getElementById('heroXP').textContent=xp+' XP';
-  // Profile level card
   const lpc=document.getElementById('levelProgressCard');
   if(lpc){
     lpc.innerHTML=`
@@ -1163,7 +1148,7 @@ function renderCharts(){
   if(dayChartInst){dayChartInst.destroy();dayChartInst=null;}
   dayChartInst=new Chart(document.getElementById('dayChart'),{type:'bar',data:{labels:Array.from({length:dim},(_,i)=>i+1),datasets:[{data:dt,backgroundColor:dt.map((v,i)=>i===today-1?'#F5C400':v>0?'#B38A00':'#3A3210'),borderRadius:5,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>' '+fmt(c.raw)}}},scales:{x:{ticks:{color:'var(--muted)',font:{size:10},autoSkip:true,maxTicksLimit:10},grid:{display:false}},y:{ticks:{color:'var(--muted)',font:{size:10},callback:v=>'Rs'+Math.round(v)},grid:{color:'rgba(245,196,0,0.08)'}}}}});
   renderWeekChart();
-} // closes renderCharts
+}
 
 function renderWeekChart(){
   const now=new Date();const thisWeek=Array(7).fill(0);const lastWeek=Array(7).fill(0);const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
@@ -1207,32 +1192,24 @@ function calcStreak(){
   const current=streak;best=Math.max(best,streak);const stored=parseInt(localStorage.getItem('ac3_bestStreak')||'0');const finalBest=Math.max(best,stored);localStorage.setItem('ac3_bestStreak',String(finalBest));return{current,best:finalBest};
 }
 
-/* ══ BADGES — Revamped ══ */
+/* ══ BADGES ══ */
 const BADGES=[
-  // Rookie tier
   {id:'first_expense',name:'First Sting',    desc:'Logged your very first expense',      icon:'⚡',tier:'Rookie',   xpVal:5},
   {id:'ten_entries',  name:'Getting Buzzy',  desc:'Logged 10 expenses',                  icon:'🐝',tier:'Rookie',   xpVal:10,check:()=>expenses.length>=10},
   {id:'three_cats',   name:'Diversified',    desc:'Used 3 different categories',         icon:'🌈',tier:'Rookie',   xpVal:10,check:()=>new Set(expenses.map(e=>e.cat)).size>=3},
-  // Master tier
   {id:'week_streak',  name:'Week Warrior',   desc:'7-day logging streak',                icon:'🔥',tier:'Master',   xpVal:20,check:()=>calcStreak().current>=7},
   {id:'fifty',        name:'Half Century',   desc:'Logged 50 expenses',                  icon:'🏅',tier:'Master',   xpVal:20,check:()=>expenses.length>=50},
   {id:'budget_set',   name:'Planner',        desc:'Set a monthly budget',                icon:'📋',tier:'Master',   xpVal:20,check:()=>!!monthBudget},
-  // Grandmaster tier
   {id:'loan_settled', name:'Fair & Square',  desc:'Settled your first loan',             icon:'🤝',tier:'Grandmaster',xpVal:30,check:()=>loans.some(l=>l.settled)},
   {id:'hundred',      name:'Centurion',      desc:'Logged 100 expenses',                 icon:'💯',tier:'Grandmaster',xpVal:30,check:()=>expenses.length>=100},
   {id:'all_cats',     name:'Full Spectrum',  desc:'Used all 9 categories',               icon:'💎',tier:'Grandmaster',xpVal:30,check:()=>new Set(expenses.map(e=>e.cat)).size>=9},
-  // Legend tier
   {id:'month_streak', name:'30-Day Legend',  desc:'30-day logging streak',               icon:'⭐',tier:'Legend',    xpVal:50,check:()=>calcStreak().current>=30},
   {id:'month_veteran',name:'Monthly Pro',    desc:'Tracked 3+ months',                   icon:'📅',tier:'Legend',    xpVal:50,check:()=>new Set(expenses.map(e=>e.date?e.date.slice(0,7):'')).size>=3},
-  // Conqueror tier
   {id:'pdf_export',   name:'Documenter',     desc:'Generated your first PDF report',     icon:'📄',tier:'Conqueror', xpVal:30,check:()=>!!localStorage.getItem('ac3_pdf_exported')},
   {id:'two_hundred',  name:'Expense Lord',   desc:'Logged 200 expenses',                 icon:'👑',tier:'Conqueror', xpVal:60,check:()=>expenses.length>=200},
-  // Grand Regent tier
   {id:'six_months',   name:'Dedicated',      desc:'Tracked 6+ months',                   icon:'🏆',tier:'Grand Regent',xpVal:80,check:()=>new Set(expenses.map(e=>e.date?e.date.slice(0,7):'')).size>=6},
-  // Emperor tier
   {id:'year_streak',  name:'Unstoppable',    desc:'365-day logging streak — LEGENDARY',  icon:'👁',tier:'Emperor',   xpVal:200,check:()=>calcStreak().current>=365},
 ];
-// Make sure first_expense has a check
 BADGES[0].check=()=>expenses.length>=1;
 
 const TIER_COLORS={Rookie:'#888',Master:'#4CAF50',Grandmaster:'#2196F3',Legend:'#9C27B0',Conqueror:'#FF5722','Grand Regent':'#F5C400',Emperor:'#FFD700'};
@@ -1278,7 +1255,7 @@ function saveName(){const n=document.getElementById('profNameInput').value.trim(
 function clearAllData(){if(!confirm('Delete ALL data? This cannot be undone!'))return;const user=auth.currentUser;if(user){const e=user.email;localStorage.removeItem('ac3_user_'+e);localStorage.removeItem('ac3_avatar_'+e);}['ac3_exp','ac3_loans','ac3_user','ac3_avatar','ac3_theme','ac3_joined'].forEach(k=>localStorage.removeItem(k));location.reload();}
 
 /* ══ PHOTO ══ */
-let userAvatarIsPhoto=false;
+// NOTE: userAvatarIsPhoto is declared in the STATE section above — no duplicate here
 function useGooglePhoto(){const user=auth.currentUser;if(user&&user.photoURL){userAvatar=user.photoURL;userAvatarIsPhoto=true;save();updateHeaderAvatar();updateProfileDisplay();showNotif('✅ Google photo set!','good');}else{showNotif('No Google photo found.','warn');}}
 function uploadGalleryPhoto(event){const file=event.target.files[0];if(!file)return;if(file.size>2*1024*1024){showNotif('Image too large. Max 2MB.','warn');return;}const reader=new FileReader();reader.onload=e=>{userAvatar=e.target.result;userAvatarIsPhoto=true;save();updateHeaderAvatar();updateProfileDisplay();showNotif('✅ Photo updated!','good');};reader.readAsDataURL(file);event.target.value='';}
 
